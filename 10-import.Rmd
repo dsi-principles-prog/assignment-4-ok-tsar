@@ -1,0 +1,37 @@
+---
+title: "10-import"
+output: html_document
+---
+
+I will look at 2018 mass shooting data that we used in previous class. I would like to see what states seem to have the biggest problems with this. I would also like to look at the deadliness/injurty rate of shootings relative to otheres within the state.
+
+Hopefully this can help me identify states where this is large problem and where this isnt. Additionally I want to see what are the deadliest/injury fullest (?) shootings.
+
+# librarys
+```{r}
+library(tidyverse)
+library(janitor)
+library(assertr)
+library(dplyr)
+library(ggplot2)
+```
+
+# import data set
+```{r}
+# import shooting data
+s_data <- read_csv("shooting_data.csv", 
+    # update column types appropriatly
+    # killed and wounded are integers not doubles - have to be whole numbers
+    col_types = cols(killed = col_integer(), 
+        wounded = col_integer())) %>% 
+  # clean names to remove spaces and special casings
+  clean_names()
+
+# use assertr statements to check killed and wounded are reasonable
+s_data <- s_data %>% 
+  # killed needs to be non negative
+  assert(within_bounds(0,Inf), killed) %>% 
+  # wounded needs to be non negative
+  assert(within_bounds(0,Inf), wounded)
+```
+
