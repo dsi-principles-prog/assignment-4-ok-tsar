@@ -15,6 +15,7 @@ To make this feature we need to within the feature group by state then find the 
 ```{r mean_by_state_feature}
 mean_by_state <- function(df, vars) {
   df %>% 
+    assert(is.integer(var)) %>% 
     group_by(state) %>% 
     mutate_at(vars, list(statemean = function(x, na.rm = FALSE) {mean(x, na.rm = TRUE)})) %>% 
     ungroup() %>% 
@@ -26,7 +27,7 @@ mean_by_state <- function(df, vars) {
 #### test 1: check that mean by state of wounded variable is between 0 and 10 (i.e. reasonable)
 ```{r mean_by_state_testing_1}
 s_data %>% mean_by_state(c("killed","wounded")) %>%
-  assert(within_bounds(0, 10), 'statemean')
+  assert(within_bounds(0, 10), 'wounded_statemean')
 ```
 #### test 2: check that only all old columns and the new column are there
 ```{r mean_by_state_testing_2}
@@ -131,12 +132,8 @@ This feature allows me to look any numerical variable's (or group of variables')
 To make this feature we need to - within the feature - group by state then find the sum of the variables given. Then order the output in the order described above.
 HINT: ungroup when you are finished as it may become a problem later if you don't!
 ```{r sum_by_state_feature}
-sum_by_state <- function(df, vars) {
-  df %>% 
-    group_by(state) %>% 
-    mutate_at(vars, list(state_sum = function(x, na.rm = FALSE) {sum(x, na.rm = TRUE)})) %>% 
-    ungroup() %>% 
-    select(state, contains("state_sum"), everything())
+sum_by_state <- function() {
+
 }
 ```
 
@@ -197,15 +194,8 @@ To make this feature we need to - within the feature - group by state calculate 
 
 *Name the variables: killed_per_1M and wounded_per_1M
 ```{r per_1M_by_state}
-per_1M_by_state <- function(df) {
-  df %>%
-    group_by(state) %>%
-    mutate(
-      killed_per_1M = (killed_state_sum / population) * 1000000,
-      wounded_per_1M = (wounded_state_sum / population) * 1000000
-    ) %>%
-    ungroup() %>%
-    select(state, contains("per_1M"), everything())
+per_1M_by_state <- function() {
+
 }
 ```
 
@@ -215,7 +205,7 @@ per_1M_by_state <- function(df) {
 s_data %>% merge_dfs(p_data) %>% sum_by_state(c("killed", "wounded")) %>% per_1M_by_state() %>% 
   assert(within_bounds(0, 1000), 'killed_per_1M', "wounded_per_1M")
 ```
-#### test 2: check that the killed and wounded per 1M are positive and reasonables (i.e. between 0 and 1000)
+#### test 2: check that only all old columns and the new columns are there
 ```{r per_1M_testing_2}
 s_data %>% merge_dfs(p_data) %>% sum_by_state(c("killed", "wounded")) %>% per_1M_by_state() %>%
   assert_colnames(
